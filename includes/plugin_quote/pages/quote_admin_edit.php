@@ -1175,28 +1175,10 @@ if(module_config::c('quote_allow_staff_assignment',1)){
                         <thead>
                         <tr>
                             <?php if($show_task_numbers){ ?>
-                            <th width="10">#</th>
+                            <th width="10">Index</th>
                             <?php } ?>
                             <th class="task_column task_width"><?php _e('Description');?></th>
-                            <th width="15" class="task_type_label">
-                                <?php
-                                // work out what unit of measurement we are to show here.
-                                // if all the products are the same unit of measurement then we show that here
-                                // if the tasks are all different then we show blank here and have the unit of measurement below.
-                                $unit_measurement = false;
-                                if(is_callable('module_product::sanitise_product_name')) {
-	                                $fake_task = module_product::sanitise_product_name( array(), $quote['default_task_type'] );
-	                                $unit_measurement = $fake_task['unitname'];
-	                                foreach($quote_tasks as $quote_task_id => $task_data){
-		                                if(isset($task_data['unitname']) && $task_data['unitname'] != $unit_measurement){
-			                                $unit_measurement = false;
-			                                break; // show nothing at title of quote page.
-		                                }
-	                                }
-                                }
-                                echo _l($unit_measurement ? $unit_measurement : module_config::c('task_default_name','Unit'));
-                                ?>
-                            </th>
+                            <th width="10">Qty</th>
                             <th width="79"><?php _e(module_config::c('quote_amount_name','Amount'));?></th>
                             <?php if(module_config::c('quote_allow_staff_assignment',1)){ ?>
                             <th width="78"><?php _e('Staff');?></th>
