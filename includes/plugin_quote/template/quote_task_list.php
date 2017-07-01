@@ -242,6 +242,17 @@ foreach($quote_tasks as $quote_item_id => $quote_item_data){
         //'item_date' => '',
         'item_tax' => 0,
         'item_tax_rate' => '',
+        'item_width' => 0,
+        'item_height' => 0,
+        'item_lite' => 0,
+        'item_area' => 0,
+        'item_price/sf' => 0,
+        'item_unit_price' => 0,
+        'item_sub_total' => 0,
+        'item_lite_price' => 0,
+        'item_area_inch' => 0,
+
+
     );
 
     if(isset($quote_item_data['task_order']) && $quote_item_data['task_order']>0){
@@ -249,6 +260,21 @@ foreach($quote_tasks as $quote_item_id => $quote_item_data){
     }else{
         $row_replace['item_number'] = $item_count;
     }
+    if(isset($quote_item_data['width']) && $quote_item_data['width']>0){
+        $row_replace['item_width'] = $quote_item_data['width'];
+        $row_replace['item_area_inch'] = ceil($quote_item_data['width']);
+    }
+    if(isset($quote_item_data['lite']) && $quote_item_data['lite']){
+        $row_replace['item_lite'] = $quote_item_data['lite'];
+        $row_replace['item_lite_price'] = $row_replace['item_lite'] * 8.86;
+
+    }
+    if(isset($quote_item_data['height']) && $quote_item_data['height']>0){
+        $row_replace['item_height'] = $quote_item_data['height'];
+        $row_replace['item_area_inch'] = $row_replace['item_area_inch'] * ceil($quote_item_data['height']);
+        $row_replace['item_area_inch'] = $row_replace['item_area_inch'] / 144 < 1 ? 1 : $row_replace['item_area_inch'] / 144;
+    }
+
     $row_replace['item_description'] .= htmlspecialchars($quote_item_data['description']);
     if(module_config::c('quote_show_long_desc',1)){
         $long_description =$quote_item_data['long_description'];
@@ -282,13 +308,20 @@ foreach($quote_tasks as $quote_item_id => $quote_item_data){
             $hours_value = number_out( $quote_item_data['hours'], true );
         }
         $row_replace['item_qty_or_hours'] = $hours_value ? $hours_value . ($quote_item_data['unitname_show'] ? ' ' .$quote_item_data['unitname'] : '') : '-';
+        $row_replace['item_area'] = number_format($row_replace['item_area'] * $row_replace['item_qty_or_hours'],2);
     }
     if($quote_item_data['task_hourly_rate']!=0){
-        $row_replace['item_amount_or_rate'] = dollar($quote_item_data['task_hourly_rate'],true,$quote['currency_id'],$task_decimal_places_trim,$task_decimal_places);
+        $row_replace['item_price/sf'] = $quote_item_data['task_hourly_rate'];
+
     }else{
-        $row_replace['item_amount_or_rate'] = '-';
+        $row_replace['item_price/sf'] = '-';
     }
-    $row_replace['item_total'] = dollar($quote_item_data['quote_item_amount'],true,$quote['currency_id']);
+
+    $row_replace['item_area'] = number_format($row_replace['item_area_inch'] * $row_replace['item_qty_or_hours'],2,'.','');
+
+    $row_replace['item_unit_price'] = number_format($row_replace['item_area_inch'] * $row_replace['item_price/sf'] + $row_replace['item_lite_price'], 2,'.','');
+
+    $row_replace['item_sub_total'] = number_format($row_replace['item_unit_price'] * $row_replace['item_qty_or_hours'],2,'.','');
 
     // taxes per item
     if(isset($quote_item_data['taxes']) && is_array($quote_item_data['taxes']) && $quote_item_data['taxable'] && class_exists('module_finance',false)){
