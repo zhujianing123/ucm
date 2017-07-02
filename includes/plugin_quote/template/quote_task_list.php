@@ -204,11 +204,22 @@ $rows[]=array(
     'label'=>_l('Total:'),
     'value'=>'<span class="currency" style="text-decoration: underline; font-weight: bold;">'.dollar($quote['total_amount'],true,$quote['currency_id']).'</span>',
 );
-
+for ($row_id= 0;$row_id< count($rows); $row_id++){
+    if($row_id == 0)
+    {
+        $rows[$row_id]['words'] = "Expected Completion Time:Flat panel needs 10 days.Raised panel and MD need 14 days.";
+    }else if($row_id == 1)
+    {
+        $rows[$row_id]['words'] = "Please verify and sign below to provide us ";
+    }else if($row_id == 2)
+    {
+        $rows[$row_id]['words'] = "your consent to proceed with the production.";
+    }
+}
 foreach($rows as $row){ ?>
 <tr>
     <td colspan="<?php echo $colspan;?>">
-        &nbsp;
+        <?php echo $row['words'];?>
     </td>
     <td>
         <?php echo $row['label'];?>
@@ -233,6 +244,9 @@ $task_decimal_places_trim = module_config::c('task_amount_decimal_places_trim',0
 
 $all_item_row_html = '';
 $item_count = 0;// changed from 1
+$total_qty = 0;
+$total_area = 0;
+$total_amount = 0;
 foreach($quote_tasks as $quote_item_id => $quote_item_data){
 
     $row_replace = array(
@@ -283,6 +297,8 @@ foreach($quote_tasks as $quote_item_id => $quote_item_data){
         }
     }
 
+
+
     /*if(isset($quote_item_data['date_done']) && $quote_item_data['date_done'] != '0000-00-00'){
         $row_replace['item_date'] .= print_date($quote_item_data['date_done']);
     }else{
@@ -323,6 +339,9 @@ foreach($quote_tasks as $quote_item_id => $quote_item_data){
 
     $row_replace['item_sub_total'] = number_format($row_replace['item_unit_price'] * $row_replace['item_qty_or_hours'],2,'.','');
 
+    $total_qty += $quote_item_data['hours'];
+    $total_area += $row_replace['item_area'];
+    $total_amount += $row_replace['item_sub_total'];
     // taxes per item
     if(isset($quote_item_data['taxes']) && is_array($quote_item_data['taxes']) && $quote_item_data['taxable'] && class_exists('module_finance',false)){
         // this passes off the tax calculation to the 'finance' class, which modifies 'amount' to match the amount of tax applied here.
@@ -357,7 +376,9 @@ foreach($quote_tasks as $quote_item_id => $quote_item_data){
     $all_item_row_html .= $this_item_row_html;
 }
 
-
+$replace['ITEM_QTY_TOTAL'] = $total_qty;
+$replace['ITEM_TOTAL_AREA'] = $total_area;
+$replace['ITEM_ALL_TOTAL'] = $total_amount;
 $replace['ITEM_ROW_CONTENT'] = $all_item_row_html;
 $t->assign_values($replace);
 echo $t->render();
