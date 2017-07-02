@@ -1143,31 +1143,13 @@ $default_payment_method = module_config::c('invoice_default_payment_method','pay
                         <thead>
                         <tr>
                             <?php if(module_config::c('invoice_task_numbers',1)){ ?>
-                            <th width="10">#</th>
+                            <th width="10">Index</th>
                             <?php } ?>
                             <th class="invoice_item_column"><?php _e('Description');?></th>
-                            <?php if($show_task_dates){ ?>
-                            <th width="10%"><?php _e('Date');?></th>
-                            <?php } ?>
-                            <th width="10%">
-                                <?php
-                                $unit_measurement = false;
-                                if(is_callable('module_product::sanitise_product_name')) {
-	                                $fake_task = module_product::sanitise_product_name( array(), $invoice['default_task_type'] );
-	                                $unit_measurement = $fake_task['unitname'];
-	                                foreach($invoice_items as $task_data){
-		                                if(isset($task_data['unitname']) && $task_data['unitname'] != $unit_measurement){
-			                                $unit_measurement = false;
-			                                break; // show nothing at title of quote page.
-		                                }
-	                                }
-                                }
-                                echo _l($unit_measurement ? $unit_measurement : module_config::c('task_default_name','Unit'));
-                                ?>
-                            </th>
-                            <th width="10%">
+                            <th width="10">Qty</th>
+                            <th width="79"><?php _e(module_config::c('invoice_amount_name','Amount'));?></th>
+                            <th width="60"> </th>
                                 <?php _e( module_config::c( 'invoice_amount_name','Amount')); ?>
-	                        <th width="10%"><?php _e('Sub-Total');?></th>
                             <th width="80"> </th>
                         </tr>
                         </thead>
@@ -1190,11 +1172,6 @@ $default_payment_method = module_config::c('invoice_default_payment_method','pay
                                     <textarea name="invoice_invoice_item[new][long_description]" id="new_task_long_description" class="edit_task_long_description no_permissions"></textarea>
                                 </div>
                             </td>
-                            <?php if($show_task_dates){ ?>
-                            <td>
-                                <input type="text" name="invoice_invoice_item[new][date_done]" value="" class="date_field">
-                            </td>
-                            <?php } ?>
                             <td>
                                 <?php if($invoice['default_task_type']==_TASK_TYPE_AMOUNT_ONLY){
                                     ?>
@@ -1209,13 +1186,6 @@ $default_payment_method = module_config::c('invoice_default_payment_method','pay
                             </td>
                             <td>
                                 <input type="text" name="invoice_invoice_item[new][hourly_rate]" value="<?php echo $invoice['default_task_type']==_TASK_TYPE_HOURS_AMOUNT ? $invoice['hourly_rate'] : 0;?>" id="newinvoice_itemrate"  size="3" style="width:35px;" onchange="setamount($('#newinvoice_itemqty').val(),'new');" onkeyup="setamount($('#newinvoice_itemqty').val(),'new');">
-                            </td>
-                            <td nowrap="">
-                                <span class="currency">
-                                <?php
-                                //name="invoice_invoice_item[new][amount]"
-                                echo currency('<span value="" id="newinvoice_itemamount" class="">0</span>',true,$invoice['currency_id']);?>
-                                </span>
                             </td>
                             <td align="center">
                                 <input type="submit" name="save" value="<?php _e('Add Item');?>" class="save_invoice_item small_button">
@@ -1297,11 +1267,6 @@ $default_payment_method = module_config::c('invoice_default_payment_method','pay
                                         } ?>
                                         <a href="#" onclick="if(confirm('<?php _e('Delete invoice item?');?>')){$(this).parent().find('input').val(''); $('#invoice_form')[0].submit();} return false;" class="delete ui-state-default ui-corner-all ui-icon ui-icon-trash" style="display:inline-block; float:right;">[x]</a>
                                     </td>
-                                    <?php if($show_task_dates){ ?>
-                                    <td>
-                                        <input type="text" name="invoice_invoice_item[<?php echo $invoice_item_id;?>][date_done]" value="<?php echo print_date($invoice_item_data['date_done']);?>" class="date_field">
-                                    </td>
-                                    <?php } ?>
                                     <td class="nowrap">
                                         <?php if($invoice_item_data['manual_task_type']==_TASK_TYPE_AMOUNT_ONLY){
                                             echo '-';
@@ -1325,16 +1290,6 @@ $default_payment_method = module_config::c('invoice_default_payment_method','pay
                                     </td>
                                     <td>
                                         <input type="text" name="invoice_invoice_item[<?php echo $invoice_item_id;?>][hourly_rate]" value="<?php echo number_out($invoice_item_data['task_hourly_rate'],$task_decimal_places_trim,$task_decimal_places);?>" id="<?php echo $invoice_item_id;?>invoice_itemrate"  size="3" style="width:35px;" onchange="setamount($('#<?php echo $invoice_item_id;?>invoice_itemqty').val(),<?php echo $invoice_item_id;?>);" onkeyup="setamount($('#<?php echo $invoice_item_id;?>invoice_itemqty').val(),<?php echo $invoice_item_id;?>);">
-                                    </td>
-                                    <td nowrap="">
-                                        <span class="currency">
-                                <?php
-                                //name="invoice_invoice_item[new][amount]"
-                                echo currency('<span value="" id="'.$invoice_item_id.'invoice_itemamount" class="">'.$invoice_item_data['invoice_item_amount'].'</span>',true,$invoice['currency_id']);?>
-                                </span>
-
-                                        <?php
-                                        //echo currency('<input type="text" name="invoice_invoice_item['.$invoice_item_id.'][amount]" value="'.$invoice_item_data['invoice_item_amount'].'" id="'.$invoice_item_id.'invoice_itemamount" class="currency">',true,$invoice['currency_id']);?>
                                     </td>
                                     <td nowrap="nowrap" align="center">
                                         <input type="submit" name="ts" class="save_invoice_item small_button" value="<?php _e('Save');?>">
