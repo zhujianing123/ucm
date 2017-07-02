@@ -218,7 +218,7 @@ for ($row_id= 0;$row_id< count($rows); $row_id++){
 }
 foreach($rows as $row){ ?>
 <tr>
-    <td colspan="<?php echo $colspan;?>">
+    <td style="font-size:10" colspan="<?php echo $colspan;?>">
         <?php echo $row['words'];?>
     </td>
     <td>
