@@ -286,7 +286,6 @@ class module_form extends module_base{
 							echo $options['fail_js'];
 						} ?>
 						alert('Required fields missing, please complete required fields.');
-                        /*$('#plugin_form_header_<?php echo htmlspecialchars($form_name);?>').html('<?php echo addcslashes(self::_get_error_msg(),"'");?>');*/
                     }
                     return !plugin_form_error;
                 });

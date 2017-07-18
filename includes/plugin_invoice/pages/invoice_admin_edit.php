@@ -1146,10 +1146,10 @@ $default_payment_method = module_config::c('invoice_default_payment_method','pay
                             <th width="10">Index</th>
                             <?php } ?>
                             <th class="invoice_item_column"><?php _e('Description');?></th>
+                            <th>&nbsp;</th>
                             <th width="10">Qty</th>
                             <th width="79"><?php _e(module_config::c('invoice_amount_name','Amount'));?></th>
                             <th width="60"> </th>
-                                <?php _e( module_config::c( 'invoice_amount_name','Amount')); ?>
                             <th width="80"> </th>
                         </tr>
                         </thead>
@@ -1170,8 +1170,19 @@ $default_payment_method = module_config::c('invoice_default_payment_method','pay
                                 <a href="#" class="task_toggle_long_description">&raquo;</a>
                                 <div class="task_long_description">
                                     <textarea name="invoice_invoice_item[new][long_description]" id="new_task_long_description" class="edit_task_long_description no_permissions"></textarea>
+                                    <br>
+                                    <?php
+                                    $extras = module_extra::get_extras(array('owner_table'=>'quote','owner_id'=>$quote_id));
+                                    foreach($extras as $e){
+                                        $data[$e['extra_key']] = $e['extra'];
+                                    }
+                                    ?>
+                                    Width: <input type="text" name="invoice_invoice_item[new][width]" value="" size="15" style="width:45px;" class="no_permissions" id="task_attr_new"><?php echo $data['Unit']?>&nbsp;&nbsp;&nbsp;
+                                    Height: <input type="text" name="invoice_invoice_item[new][height]" value="" size="15" style="width:45px;" class="no_permissions" id="task_attr_new"><?php echo $data['Unit']?>
+                                    Lite: <input type="text" name="invoice_invoice_item[new][lite]" value="" size="15" style="width:45px;" class="no_permissions" id="task_attr_new">
                                 </div>
                             </td>
+                            <td></td>
                             <td>
                                 <?php if($invoice['default_task_type']==_TASK_TYPE_AMOUNT_ONLY){
                                     ?>
@@ -1195,37 +1206,10 @@ $default_payment_method = module_config::c('invoice_default_payment_method','pay
                             </td>
                         </tr>
 						</tbody>
-                        <?php }
-                        ?>
+                        <?php } ?>
+
                         <?php
                         $c=0;
-                        /*[new3] => Array
-                        (
-                            [task_id] => 46
-                            [job_id] => 15
-                            [hours] => 0.00    ***********
-                            [amount] => 20.00    ***********
-                            [hourly_rate] => 60.00    ***********
-                            [taxable] => 1
-                            [billable] => 1
-                            [fully_completed] => 1
-                            [description] => test with fixed price ($20 one) sdgsdfg
-                            [long_description] =>
-                            [date_due] => 2012-05-18
-                            [date_done] => 2012-07-16
-                            [invoice_id] =>
-                            [user_id] => 1
-                            [approval_required] => 0
-                            [task_order] => 8
-                            [create_user_id] => 1
-                            [update_user_id] => 1
-                            [date_created] => 2012-07-16
-                            [date_updated] => 2012-07-28
-                            [id] => 46
-                            [completed] =>
-                            [custom_description] =>
-                        )*/
-
                         $task_decimal_places = module_config::c('task_amount_decimal_places',-1);
                         if($task_decimal_places < 0){
                             $task_decimal_places = false; // use default currency dec places.
@@ -1238,24 +1222,12 @@ $default_payment_method = module_config::c('invoice_default_payment_method','pay
                                 <?php if(!$invoice_locked){ ?>
                                 <tbody id="invoice_item_edit_<?php echo $invoice_item_id;?>" style="display:none;">
                                 <tr>
-                                    <?php if(module_config::c('invoice_task_numbers',1)){ ?>
-                                    <td>
-                                        <input type="text" name="invoice_invoice_item[<?php echo $invoice_item_id;?>][task_order]" value="<?php
-                                            if(isset($invoice_item_data['custom_task_order']) && (int)$invoice_item_data['custom_task_order']>0){
-                                                echo $invoice_item_data['custom_task_order'];
-                                            }else if(isset($invoice_item_data['task_order']) && $invoice_item_data['task_order']>0){
-                                                echo $invoice_item_data['task_order'];
-                                            }
-                                            ?>" size="3" class="edit_task_order">
-                                    </td>
-                                    <?php } ?>
                                     <td>
                                         <input type="hidden" name="invoice_invoice_item[<?php echo $invoice_item_id;?>][task_id]" value="<?php echo htmlspecialchars($invoice_item_data['task_id']);?>">
-
                                         <input type="text" name="invoice_invoice_item[<?php echo $invoice_item_id;?>][description]" value="<?php echo htmlspecialchars($invoice_item_data['custom_description'] ? $invoice_item_data['custom_description'] : $invoice_item_data['description']);?>" style="width:90%;" class="edit_task_description" id="invoice_item_desc_<?php echo $invoice_item_id;?>" data-id="<?php echo $invoice_item_id;?>"><?php
-                                if(class_exists('module_product',false)){
+                                        if(class_exists('module_product',false)){
                                     // looks for class edit_task_description
-                                    module_product::print_invoice_task_dropdown($invoice_item_id,$invoice_item_data);
+                                         module_product::print_invoice_task_dropdown($invoice_item_id,$invoice_item_data);
                                 } ?>
                                         <br/>
                                         <textarea name="invoice_invoice_item[<?php echo $invoice_item_id;?>][long_description]" style="width:90%;"><?php echo htmlspecialchars($invoice_item_data['custom_long_description'] ? $invoice_item_data['custom_long_description'] : $invoice_item_data['long_description']);?></textarea>
@@ -1351,10 +1323,17 @@ $default_payment_method = module_config::c('invoice_default_payment_method','pay
                                         $long_description = trim($invoice_item_data['custom_long_description'] ? htmlspecialchars($invoice_item_data['custom_long_description']) : htmlspecialchars($invoice_item_data['long_description']));
                                         if($long_description != ''){ ?>
                             <a href="#" class="task_toggle_long_description">&raquo;</a>
-                            <div class="task_long_description" <?php if(module_config::c('invoice_show_long_desc',1)){ ?> style="display:block;" <?php } ?>><?php echo forum_text($long_description);?></div>
+                            <div class="task_long_description" <?php if(module_config::c('invoice_show_long_desc',1)){ ?> style="display:block;" <?php } ?>>
+                                <?php echo forum_text($long_description);?>
+                            </div>
+                                            <br />
+                                            <span>Width: <?php echo $invoice_item_data['width'];?></span>&nbsp;&nbsp;&nbsp;
+                                            <span>Height: <?php echo $invoice_item_data['height'];?></span>&nbsp;&nbsp;&nbsp;
+                                            <span>Lite: <?php echo $invoice_item_data['lite'];?></span>&nbsp;&nbsp;&nbsp;
+
                             <?php }else{ ?>
-    &nbsp;
-    <?php } ?>
+                            &nbsp;
+                            <?php } ?>
                                     </td>
                                     <?php if($show_task_dates){ ?>
                                     <td>

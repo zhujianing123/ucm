@@ -1705,7 +1705,7 @@ Job: <strong>{JOB_NAME}</strong> <br/>
             }else if(isset($_REQUEST['butt_email']) && $_REQUEST['butt_email']){
                 $_REQUEST['_redirect'] = self::link_generate($invoice_id,array('arguments'=>array('email'=>1)));;
             }else if(isset($_REQUEST['butt_generate_credit']) && $_REQUEST['butt_generate_credit']){
-                // generate a credit note against this invioce.
+                // generate a credit note against this invoice.
                 // to do this we duplicate the invoice, remove the cancel date, remove the sent date,
                 // set a new create date, set the credit_note_id variable, remove the paid date,
                 // (copied from the generate renewal code above)
@@ -2347,6 +2347,9 @@ Job: <strong>{JOB_NAME}</strong> <br/>
                 $sql .= ", GROUP_CONCAT(DISTINCT j.`website_id` SEPARATOR ',') AS website_ids"; // the website id(s)
                 $sql .= ", GROUP_CONCAT(DISTINCT j.`job_id` SEPARATOR ',') AS job_ids"; // the job id(s)
                 $sql .= ", j.customer_id AS new_customer_id ";
+                $sql .= ", ii.width AS width ";
+                $sql .= ", ii.height AS height ";
+                $sql .= ", ii.lite AS lite ";
                 $sql .= " FROM `"._DB_PREFIX."invoice` i ";
                 $sql .= " LEFT JOIN `"._DB_PREFIX."invoice_item` ii USING (invoice_id) ";
                 $sql .= " LEFT JOIN `"._DB_PREFIX."task` t ON ii.task_id = t.task_id";
@@ -4259,6 +4262,15 @@ Job: <strong>{JOB_NAME}</strong> <br/>
         }
         if(!isset($fields['hours_mins'])){
             $sql .= 'ALTER TABLE  `'._DB_PREFIX.'invoice_item` ADD  `hours_mins`  DECIMAL(10,2) NOT NULL DEFAULT  \'0\' AFTER  `hours`;';
+        }
+        if(!isset($fields['width'])){
+            $sql .= 'ALTER TABLE  `'._DB_PREFIX.'invoice_item` ADD  `width`  DECIMAL(10,2) NOT NULL DEFAULT  \'0\' AFTER  `hours`;';
+        }
+        if(!isset($fields['height'])){
+            $sql .= 'ALTER TABLE  `'._DB_PREFIX.'invoice_item` ADD  `height`  DECIMAL(10,2) NOT NULL DEFAULT  \'0\' AFTER  `width`;';
+        }
+        if(!isset($fields['lite'])){
+            $sql .= 'ALTER TABLE  `'._DB_PREFIX.'invoice_item` ADD  `lite`  DECIMAL(10,2) NOT NULL DEFAULT  \'0\' AFTER  `height`;';
         }
 
         // check for indexes

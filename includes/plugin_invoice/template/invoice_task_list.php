@@ -286,6 +286,9 @@ if($task_decimal_places < 0){
 $task_decimal_places_trim = module_config::c('task_amount_decimal_places_trim',0);
 $all_item_row_html = '';
 $item_count = 0;// changed from 1
+$total_qty = 0;
+$total_area = 0;
+$total_amount = 0;
 foreach($invoice_tasks as $invoice_item_id => $invoice_item_data){
 
     $row_replace = $invoice_item_data;
@@ -295,6 +298,15 @@ foreach($invoice_tasks as $invoice_item_id => $invoice_item_data){
 	$row_replace['item_date'] = '';
 	$row_replace['item_tax'] = 0;
 	$row_replace['item_tax_rate'] = '';
+    $row_replace['item_width'] = 0;
+    $row_replace['item_height'] = 0;
+    $row_replace['item_lite'] = 0;
+    $row_replace['item_area'] = 0;
+    $row_replace['item_price/sf'] = 0;
+    $row_replace['item_unit_price'] = 0;
+    $row_replace['item_sub_total'] = 0;
+    $row_replace['item_lite_price'] = 0;
+    $row_replace['item_area_inch'] = 0;
 
     if(isset($invoice_item_data['custom_task_order']) && (int)$invoice_item_data['custom_task_order']>0){
         $row_replace['item_number'] = $invoice_item_data['custom_task_order'];
@@ -327,6 +339,20 @@ foreach($invoice_tasks as $invoice_item_id => $invoice_item_data){
             }
         }
     }
+    if($invoice_item_data['width'] > 0 &&isset($invoice_item_data['width'])){
+        $row_replace['item_width'] = $invoice_item_data['width'];
+        $row_replace['item_area_inch'] = ceil($invoice_item_data['width']);
+    }
+    if($invoice_item_data['height'] > 0 &&isset($invoice_item_data['height'])){
+        $row_replace['item_height'] = $invoice_item_data['height'];
+        $row_replace['item_area_inch'] = $row_replace['item_area_inch'] * ceil($invoice_item_data['height']);
+        $row_replace['item_area_inch'] = $row_replace['item_area_inch'] / 144 < 1 ? 1 : $row_replace['item_area_inch'] / 144;
+
+    }
+    if($invoice_item_data['lite'] > 0 &&isset($invoice_item_data['lite'])){
+        $row_replace['item_lite'] = $invoice_item_data['lite'];
+        $row_replace['item_lite_price'] = $row_replace['item_lite'] * 8.86;
+    }
     if($invoice_item_data['manual_task_type']==_TASK_TYPE_AMOUNT_ONLY){
         $row_replace['item_qty_or_hours'] = '-';
     }else{
@@ -336,6 +362,8 @@ foreach($invoice_tasks as $invoice_item_id => $invoice_item_data){
             $hours_value = number_out( $invoice_item_data['hours'], true );
         }
         $row_replace['item_qty_or_hours'] = $hours_value ? $hours_value . (!empty($invoice_item_data['unitname']) && !empty($invoice_item_data['unitname_show']) ? ' ' . $invoice_item_data['unitname'] : '') : '-';
+        $row_replace['item_area'] = number_format($row_replace['item_area'] * $row_replace['item_qty_or_hours'],2);
+
     }
     if($invoice_item_data['task_hourly_rate']!=0){
         $row_replace['item_amount_or_rate'] = dollar($invoice_item_data['task_hourly_rate'],true,$invoice['currency_id'],$task_decimal_places_trim,$task_decimal_places);
@@ -343,7 +371,22 @@ foreach($invoice_tasks as $invoice_item_id => $invoice_item_data){
         $row_replace['item_amount_or_rate'] = '-';
     }
     $row_replace['item_total'] = dollar($invoice_item_data['invoice_item_amount'],true,$invoice['currency_id']);
+    if($invoice_item_data['task_hourly_rate']!=0){
+        $row_replace['item_price/sf'] = $invoice_item_data['task_hourly_rate'];
 
+    }else{
+        $row_replace['item_price/sf'] = '-';
+    }
+
+    $row_replace['item_area'] = number_format($row_replace['item_area_inch'] * $row_replace['item_qty_or_hours'],2,'.','');
+
+    $row_replace['item_unit_price'] = number_format($row_replace['item_area_inch'] * $row_replace['item_price/sf'] + $row_replace['item_lite_price'], 2,'.','');
+
+    $row_replace['item_sub_total'] = number_format($row_replace['item_unit_price'] * $row_replace['item_qty_or_hours'],2,'.','');
+
+    $total_qty += $invoice_item_data['hours'];
+    $total_area += $row_replace['item_area'];
+    $total_amount += $row_replace['item_sub_total'];
     // taxes per item
     if(isset($invoice_item_data['taxes']) && is_array($invoice_item_data['taxes']) && $invoice_item_data['taxable'] && class_exists('module_finance',false)){
         // this passes off the tax calculation to the 'finance' class, which modifies 'amount' to match the amount of tax applied here.
@@ -384,7 +427,9 @@ foreach($invoice_tasks as $invoice_item_id => $invoice_item_data){
     }*/
     $all_item_row_html .= $this_item_row_html;
 }
-
+$replace['ITEM_QTY_TOTAL'] = $total_qty;
+$replace['ITEM_TOTAL_AREA'] = $total_area;
+$replace['ITEM_ALL_TOTAL'] = $total_amount;
 
 $replace['ITEM_ROW_CONTENT'] = $all_item_row_html;
 $t->assign_values($replace);

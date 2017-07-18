@@ -1210,19 +1210,8 @@ if(module_config::c('quote_allow_staff_assignment',1)){
                                              $data[$e['extra_key']] = $e['extra']; 
                                         }
                                     ?>
-                                    <?php if($data['Unit'] == 'cm') { ?>
-                                         Width: <input type="text" name="quote_task[new][width]" value="" size="15" style="width:45px;" class="no_permissions" id="task_attr_new"><?php echo $data['Unit'];?>&nbsp;&nbsp;&nbsp;
-                                         Height: <input type="text" name="quote_task[new][height]" value="" size="15" style="width:45px;" class="no_permissions" id="task_attr_new"><?php echo $data['Unit'];?>&nbsp;&nbsp;&nbsp;
-                                    <?php
-                                    } else if($data['Unit'] == 'inch') {?>
-                                         Width: <input type="text" name="quote_task[new][width]" value="" size="15" style="width:45px;" class="no_permissions" id="task_attr_new"><?php echo $data['Unit'];?>&nbsp;&nbsp;&nbsp;
-                                         Height: <input type="text" name="quote_task[new][height]" value="" size="15" style="width:45px;" class="no_permissions" id="task_attr_new"><?php echo $data['Unit'];?>&nbsp;&nbsp;&nbsp;
-                                    <?php
-                                    } else { ?>
-                                         Width: <input type="text" name="quote_task[new][width]" value="" size="15" style="width:45px;" class="no_permissions" id="task_attr_new"><?php echo $data['Unit'];?>&nbsp;&nbsp;&nbsp;
-                                         Height: <input type="text" name="quote_task[new][height]" value="" size="15" style="width:45px;" class="no_permissions" id="task_attr_new"><?php echo $data['Unit'];?>&nbsp;&nbsp;&nbsp;
-                                    <?php
-                                    } ?>
+                                    Width: <input type="text" name="quote_task[new][width]" value="" size="15" style="width:45px;" class="no_permissions" id="task_attr_new"><?php echo $data['Unit'];?>&nbsp;&nbsp;&nbsp;
+                                    Height: <input type="text" name="quote_task[new][height]" value="" size="15" style="width:45px;" class="no_permissions" id="task_attr_new"><?php echo $data['Unit'];?>&nbsp;&nbsp;&nbsp;
                                     Lite: <input type="text" name="quote_task[new][lite]" value="" size="15" style="width:45px;" class="no_permissions" id="task_attr_new">
                                 </div>
                             </td>
