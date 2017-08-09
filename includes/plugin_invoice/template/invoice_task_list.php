@@ -340,12 +340,31 @@ foreach($invoice_tasks as $invoice_item_id => $invoice_item_data){
         }
     }
     if($invoice_item_data['width'] > 0 &&isset($invoice_item_data['width'])){
-        $row_replace['item_width'] = $invoice_item_data['width'];
-        $row_replace['item_area_inch'] = ceil($invoice_item_data['width']);
+        $value_width = 0;
+        $arraylist = explode(" ",$invoice_item_data['width']);
+        if(count($arraylist) >1)
+        {
+            $tmp_array = explode("/",$arraylist[1]);
+            $value_width = intval($arraylist[0]) + number_format(intval($tmp_array[0])/intval($tmp_array[1]), 3, '.', '');
+        }else{
+            $value_width = number_format($invoice_item_data['width'], 3, '.', '');
+        }
+        $row_replace['item_width'] = $value_width;
+        $row_replace['item_area_inch'] = ceil($value_width);
     }
     if($invoice_item_data['height'] > 0 &&isset($invoice_item_data['height'])){
-        $row_replace['item_height'] = $invoice_item_data['height'];
-        $row_replace['item_area_inch'] = $row_replace['item_area_inch'] * ceil($invoice_item_data['height']);
+        $value_height = 0;
+        $arraylist2 = explode(" ",$invoice_item_data['height']);
+        if(count($arraylist2) >1)
+        {
+            $tmp_array2 = explode("/",$arraylist[1]);
+            $value_height = intval($arraylist2[0]) + number_format(intval($tmp_array2[0])/intval($tmp_array2[1]), 3, '.', '');
+        }else
+        {
+            $value_height = number_format($invoice_item_data['height'], 3, '.', '');
+        }
+        $row_replace['item_height'] = $value_height;
+        $row_replace['item_area_inch'] = $row_replace['item_area_inch'] * ceil($value_height);
         $row_replace['item_area_inch'] = $row_replace['item_area_inch'] / 144 < 1 ? 1 : $row_replace['item_area_inch'] / 144;
 
     }

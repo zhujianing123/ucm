@@ -275,8 +275,17 @@ foreach($quote_tasks as $quote_item_id => $quote_item_data){
         $row_replace['item_number'] = $item_count;
     }
     if(isset($quote_item_data['width']) && $quote_item_data['width']>0){
-        $row_replace['item_width'] = $quote_item_data['width'];
-        $row_replace['item_area_inch'] = ceil($quote_item_data['width']);
+        $value_width = 0;
+        $arraylist = explode(" ",$quote_item_data['width']);
+        if(count($arraylist) >1)
+        {
+            $tmp_array = explode("/",$arraylist[1]);
+            $value_width = intval($arraylist[0]) + number_format(intval($tmp_array[0])/intval($tmp_array[1]), 3, '.', '');
+        }else{
+            $value_width = number_format($quote_item_data['width'], 3, '.', '');
+        }
+        $row_replace['item_width'] = $value_width;
+        $row_replace['item_area_inch'] = ceil($value_width);
     }
     if(isset($quote_item_data['lite']) && $quote_item_data['lite']){
         $row_replace['item_lite'] = $quote_item_data['lite'];
@@ -284,8 +293,17 @@ foreach($quote_tasks as $quote_item_id => $quote_item_data){
 
     }
     if(isset($quote_item_data['height']) && $quote_item_data['height']>0){
-        $row_replace['item_height'] = $quote_item_data['height'];
-        $row_replace['item_area_inch'] = $row_replace['item_area_inch'] * ceil($quote_item_data['height']);
+        $value_height = 0;
+        $arraylist2 = explode(" ",$quote_item_data['height']);
+        if(count($arraylist2) >1)
+        {
+            $tmp_array2 = explode("/",$arraylist[1]);
+            $value_height = intval($arraylist2[0]) + number_format(intval($tmp_array2[0])/intval($tmp_array2[1]), 3, '.', '');
+        }else{
+            $value_height = number_format($quote_item_data['height'], 3, '.', '');
+        }
+        $row_replace['item_height'] = $value_height;
+        $row_replace['item_area_inch'] = $row_replace['item_area_inch'] * ceil($value_height);
         $row_replace['item_area_inch'] = $row_replace['item_area_inch'] / 144 < 1 ? 1 : $row_replace['item_area_inch'] / 144;
     }
 
